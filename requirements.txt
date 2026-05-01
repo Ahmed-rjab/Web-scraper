@@ -1,0 +1,14 @@
+# Phishing Threat Intelligence Scraper
+# Python Dependencies
+
+# Core
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Web Framework
+flask>=3.0.0
+jinja2>=3.1.0
+
+# Database (built-in, no install needed)
+# sqlite3 - Python standard library

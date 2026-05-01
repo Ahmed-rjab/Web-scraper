@@ -1,11 +1,32 @@
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
+# CDN domains that are considered safe
+CDN_WHITELIST = {
+    "cdnjs.cloudflare.com", "ajax.googleapis.com",
+    "code.jquery.com", "cdn.jsdelivr.net", "stackpath.bootstrapcdn.com"
+}
+
 def parse_indicators(html, page_url):
+    """
+    Parse HTML and extract phishing indicators.
+    
+    Args:
+        html: Raw HTML string
+        page_url: The URL the HTML was fetched from
+    
+    Returns:
+        list: List of indicator dictionaries
+    """
     if not html:
         return []
 
-    soup = BeautifulSoup(html, "lxml")
+    try:
+        soup = BeautifulSoup(html, "lxml")
+    except Exception as e:
+        print(f"[PARSER ERROR] Failed to parse HTML: {e}")
+        return []
+    
     indicators = []
     
     # Standardize domain for comparison
@@ -80,18 +101,6 @@ def parse_indicators(html, page_url):
             "score": 2,
             "detail": f"Scripts hosted on: {', '.join(list(set(external_scripts))[:2])}"
         })
-        CDN_WHITELIST = {
-    "cdnjs.cloudflare.com", "ajax.googleapis.com",
-    "code.jquery.com", "cdn.jsdelivr.net", "stackpath.bootstrapcdn.com"
-    }
-
-    external_scripts = []
-    for script in soup.find_all("script", src=True):
-        src = script.get("src", "").lower()
-        if src.startswith("http"):
-            script_domain = urlparse(src).netloc.lower().replace("www.", "")
-            if script_domain and script_domain != page_domain and script_domain not in CDN_WHITELIST:
-                external_scripts.append(script_domain)
 
     # ── Rule 5: Urgency keywords (+1) ────────────────────────────
     # We use a set for faster lookup and check once per page

@@ -57,7 +57,7 @@ def fetch_page(url, timeout=DEFAULT_TIMEOUT, user_agent=None):
         return (response.status_code, response.text, None)
     
     except requests.Timeout:
-        return (None, None, f"Timeout after {timeout}s")
+        return (None, None, f"Timeout error after {timeout}s")
     except requests.ConnectionError as e:
         return (None, None, f"Connection error: {str(e)[:80]}")
     except requests.TooManyRedirects:
@@ -113,7 +113,7 @@ def scrape_urls(urls, delay_range=(MIN_DELAY, MAX_DELAY), progress_callback=None
 def get_domain(url):
     """Extract domain from URL for logging."""
     try:
-        return urlparse(url).netloc
+        return urlparse(url).netloc or "unknown"
     except Exception:
         return "unknown"
 

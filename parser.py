@@ -90,9 +90,11 @@ def parse_indicators(html, page_url):
     external_scripts = []
     for script in soup.find_all("script", src=True):
         src = script.get("src", "").lower()
-        if src.startswith("http"):
+        # Check both http and https scripts
+        if src.startswith(("http://", "https://")):
             script_domain = urlparse(src).netloc.lower().replace("www.", "")
-            if script_domain and script_domain != page_domain:
+            # Flag if external AND not in CDN whitelist
+            if script_domain and script_domain != page_domain and script_domain not in CDN_WHITELIST:
                 external_scripts.append(script_domain)
     
     if external_scripts:

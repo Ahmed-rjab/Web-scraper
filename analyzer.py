@@ -8,7 +8,12 @@ def analyze(url, indicators):
     indicators = indicators or []
 
     try:
-        total_score = sum(item.get("score", 0) for item in indicators)
+        total_score = 0
+        for item in indicators:
+            try:
+                total_score += int(item.get("score", 0))
+            except (TypeError, ValueError):
+                continue
 
         if total_score >= 7:
             risk_level = "HIGH"

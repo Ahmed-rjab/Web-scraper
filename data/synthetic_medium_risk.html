@@ -1,0 +1,28 @@
+<!-- 
+  Synthetic Phishing HTML - Medium Risk
+  Contains: password field, urgency keywords, no HTTPS links
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Verification</title>
+</head>
+<body>
+    <h1>Action Required</h1>
+    <p>Your account will be suspended if you do not verify now.</p>
+    <p>Limited time offer - confirm your identity immediately.</p>
+    
+    <form action="/login" method="POST">
+        <label>Username:</label>
+        <input type="text" name="username"><br>
+        
+        <label>Password:</label>
+        <input type="password" name="password"><br>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <a href="http://example.com">Terms</a>
+    <a href="http://example.com">Privacy</a>
+</body>
+</html>

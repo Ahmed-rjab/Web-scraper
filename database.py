@@ -32,37 +32,42 @@ def init_database(db_path=None):
                 status_code INTEGER
             )
         """)
-    
-    # Table: results - stores individual indicators
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS results (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            url_id INTEGER NOT NULL,
-            indicator TEXT NOT NULL,
-            score INTEGER NOT NULL,
-            detail TEXT,
-            FOREIGN KEY (url_id) REFERENCES urls (id)
-        )
-    """)
-    
-    # Table: scores - stores aggregated threat scores
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS scores (
-            url_id INTEGER PRIMARY KEY,
-            total_score INTEGER NOT NULL,
-            risk_level TEXT NOT NULL,
-            FOREIGN KEY (url_id) REFERENCES urls (id)
-        )
-    """)
-    
-    # Create indexes for faster queries
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_urls_scraped_at ON urls(scraped_at)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_results_url_id ON results(url_id)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scores_risk_level ON scores(risk_level)")
-    
-    conn.commit()
-    conn.close()
-    print(f"[DATABASE] Initialized: {db_path}")
+
+        # Table: results - stores individual indicators
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                url_id INTEGER NOT NULL,
+                indicator TEXT NOT NULL,
+                score INTEGER NOT NULL,
+                detail TEXT,
+                FOREIGN KEY (url_id) REFERENCES urls (id)
+            )
+        """)
+
+        # Table: scores - stores aggregated threat scores
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS scores (
+                url_id INTEGER PRIMARY KEY,
+                total_score INTEGER NOT NULL,
+                risk_level TEXT NOT NULL,
+                FOREIGN KEY (url_id) REFERENCES urls (id)
+            )
+        """)
+
+        # Create indexes for faster queries
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_urls_scraped_at ON urls(scraped_at)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_results_url_id ON results(url_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scores_risk_level ON scores(risk_level)")
+
+        conn.commit()
+        print(f"[DATABASE] Initialized: {db_path}")
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"[DATABASE ERROR] Failed to initialize schema: {e}")
+        raise
+    finally:
+        conn.close()
 
 
 @contextmanager

@@ -2,6 +2,7 @@
 Component 2: Scraper Engine
 Performs HTTP requests to fetch HTML content from target URLs.
 """
+import logging
 import requests
 import time
 import random
@@ -12,6 +13,17 @@ from urllib.parse import urlparse
 DEFAULT_TIMEOUT = 10  # seconds
 MIN_DELAY = 1  # minimum seconds between requests
 MAX_DELAY = 3  # maximum seconds between requests
+LOG_FILE = "scraper_errors.log"
+
+# Module-level logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+_file_handler = logging.FileHandler(LOG_FILE)
+_file_handler.setLevel(logging.ERROR)
+_file_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+)
+logger.addHandler(_file_handler)
 
 
 def fetch_page(url, timeout=DEFAULT_TIMEOUT, user_agent=None):
@@ -57,17 +69,29 @@ def fetch_page(url, timeout=DEFAULT_TIMEOUT, user_agent=None):
         return (response.status_code, response.text, None)
     
     except requests.Timeout:
-        return (None, None, f"Timeout error after {timeout}s")
+        msg = f"Timeout error after {timeout}s"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
     except requests.ConnectionError as e:
-        return (None, None, f"Connection error: {str(e)[:80]}")
+        msg = f"Connection error: {str(e)[:80]}"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
     except requests.TooManyRedirects:
-        return (None, None, "Too many redirects")
+        msg = "Too many redirects"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
     except requests.SSLError as e:
-        return (None, None, f"SSL error: {str(e)[:50]}")
+        msg = f"SSL error: {str(e)[:50]}"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
     except requests.RequestException as e:
-        return (None, None, f"Request error: {str(e)[:80]}")
+        msg = f"Request error: {str(e)[:80]}"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
     except Exception as e:
-        return (None, None, f"Unexpected error: {str(e)[:80]}")
+        msg = f"Unexpected error: {str(e)[:80]}"
+        logger.error("[%s] %s", url, msg)
+        return (None, None, msg)
 
 
 def scrape_urls(urls, delay_range=(MIN_DELAY, MAX_DELAY), progress_callback=None):
@@ -108,6 +132,22 @@ def scrape_urls(urls, delay_range=(MIN_DELAY, MAX_DELAY), progress_callback=None
             time.sleep(delay)
         
         yield result
+
+
+def fetch_html(url):
+    """
+    Thin wrapper around fetch_page() that returns only the HTML content.
+
+    Args:
+        url: The URL to fetch
+
+    Returns:
+        str: HTML content on success, or None on failure
+    """
+    _, html, error = fetch_page(url)
+    if error is not None or html is None:
+        return None
+    return html
 
 
 def get_domain(url):

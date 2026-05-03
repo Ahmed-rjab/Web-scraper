@@ -1,6 +1,6 @@
 """
 Main Entry Point: Phishing Threat Intelligence Pipeline
-Orchestrates all components: URL Feed → Scraper → Parser → Analyzer → Database
+Orchestrates all components: URL Feed -> Scraper -> Parser -> Analyzer -> Database
 """
 import sys
 import time
@@ -95,7 +95,7 @@ def run_pipeline(max_urls=10, local_file=None):
         )
         
         scraped_count += 1
-        print(f"    → Score: {analysis['total_score']} | Risk: {analysis['risk_level']}")
+        print(f"    -> Score: {analysis['total_score']} | Risk: {analysis['risk_level']}")
     
     # Final statistics
     print("\n" + "=" * 60)
